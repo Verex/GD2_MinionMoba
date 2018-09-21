@@ -7,6 +7,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class NetworkedNavAgent : NetworkBehaviour
 {
+    private int test;
+    private Vector3 targetPosition;
     private NavMeshAgent navMeshAgent;
 
     private void UpdateDestination(Vector3 currentPosition, Vector3 destination)
@@ -41,87 +43,166 @@ public class NetworkedNavAgent : NetworkBehaviour
         // Apply destination to navmesh agent.
         navMeshAgent.SetDestination(destination);
 
-        // Send client rpc.
-        RpcUpdateDestination(transform.position, destination);
+        // Our destination has been changed.
+        SetDirtyBit(1u);
+        SetDirtyBit(2u);
+    }
+
+    IEnumerator update()
+    {
+        yield return new WaitForSeconds(5.0f);
+
+        // We want position to be updated.
+        SetDirtyBit(2u);
     }
 
     private void Start()
     {
         // Get components.
         navMeshAgent = GetComponent<NavMeshAgent>();
+
+        if (isServer)
+        {
+            StartCoroutine(update());
+        }
     }
     public override bool OnSerialize(NetworkWriter writer, bool forceAll)
     {
         if (forceAll)
         {
-            // The first time a GameObject is sent to a client, send all the data (and no dirty bits)
-            writer.WritePackedUInt32((uint)10);
-            writer.WritePackedUInt32((uint)11);
-            writer.Write("String");
+            // Allocate byte array for destination and current position.
+            byte[] bytes = new byte[4 * 6];
+
+            // Convert navmesh destination to byte array.
+            byte[] dx = System.BitConverter.GetBytes(navMeshAgent.destination.x),
+                dy = System.BitConverter.GetBytes(navMeshAgent.destination.y),
+                dz = System.BitConverter.GetBytes(navMeshAgent.destination.z),
+                px = System.BitConverter.GetBytes(transform.position.x),
+                py = System.BitConverter.GetBytes(transform.position.y),
+                pz = System.BitConverter.GetBytes(transform.position.z);
+
+            // Push floats to array.
+            System.Buffer.BlockCopy(dx, 0, bytes, 0, 4);
+            System.Buffer.BlockCopy(dy, 0, bytes, 4, 4);
+            System.Buffer.BlockCopy(dz, 0, bytes, 8, 4);
+            System.Buffer.BlockCopy(px, 0, bytes, 12, 4);
+            System.Buffer.BlockCopy(py, 0, bytes, 16, 4);
+            System.Buffer.BlockCopy(pz, 0, bytes, 20, 4);
+
+            // Write destination and position.
+            writer.WriteBytesAndSize(bytes, bytes.Length);
+
             return true;
         }
-        bool wroteSyncVar = false;
+
+        bool shouldSync = false;
+
+        // Write sync var.
+        writer.WritePackedUInt32(base.syncVarDirtyBits);
+
+        // Check if navmesh destination should be synced.
         if ((base.syncVarDirtyBits & 1u) != 0u)
         {
-            if (!wroteSyncVar)
-            {
-                // Write dirty bits if this is the first SyncVar written
-                writer.WritePackedUInt32(base.syncVarDirtyBits);
-                wroteSyncVar = true;
-            }
-            writer.WritePackedUInt32((uint)10);
-        }
-        if ((base.syncVarDirtyBits & 2u) != 0u)
-        {
-            if (!wroteSyncVar)
-            {
-                // Write dirty bits if this is the first SyncVar written
-                writer.WritePackedUInt32(base.syncVarDirtyBits);
-                wroteSyncVar = true;
-            }
-            writer.WritePackedUInt32((uint)11);
-        }
-        if ((base.syncVarDirtyBits & 4u) != 0u)
-        {
-            if (!wroteSyncVar)
-            {
-                // Write dirty bits if this is the first SyncVar written
-                writer.WritePackedUInt32(base.syncVarDirtyBits);
-                wroteSyncVar = true;
-            }
-            writer.Write("String");
+            byte[] bytes = new byte[4 * 3];
+
+            // Convert navmesh destination to byte array.
+            byte[] x = System.BitConverter.GetBytes(navMeshAgent.destination.x),
+                y = System.BitConverter.GetBytes(navMeshAgent.destination.y),
+                z = System.BitConverter.GetBytes(navMeshAgent.destination.z);
+
+            System.Buffer.BlockCopy(x, 0, bytes, 0, 4);
+            System.Buffer.BlockCopy(y, 0, bytes, 4, 4);
+            System.Buffer.BlockCopy(z, 0, bytes, 8, 4);
+
+            // Write position vector to stream.
+            writer.WriteBytesAndSize(bytes, bytes.Length);
+
+            shouldSync = true;
         }
 
-        if (!wroteSyncVar)
+        // Check if current position should be synced.
+        if ((base.syncVarDirtyBits & 2u) != 0u)
         {
-            // Write zero dirty bits if no SyncVars were written
+            // Convert navmesh destination to byte array.
+            byte[] x = System.BitConverter.GetBytes(transform.position.x),
+                y = System.BitConverter.GetBytes(transform.position.y),
+                z = System.BitConverter.GetBytes(transform.position.z);
+
+            byte[] bytes = new byte[4 * 3];
+            System.Buffer.BlockCopy(x, 0, bytes, 0, 4);
+            System.Buffer.BlockCopy(y, 0, bytes, 4, 4);
+            System.Buffer.BlockCopy(z, 0, bytes, 8, 4);
+
+            // Write position vector to stream.
+            writer.WriteBytesAndSize(bytes, bytes.Length);
+
+            shouldSync = true;
+        }
+
+        if (!shouldSync)
+        {
             writer.WritePackedUInt32(0);
         }
-        return wroteSyncVar;
+
+        return shouldSync;
     }
 
     public override void OnDeserialize(NetworkReader reader, bool initialState)
     {
         if (initialState)
         {
-            int int1 = (int)reader.ReadPackedUInt32();
-            int int2 = (int)reader.ReadPackedUInt32();
-            string str = reader.ReadString();
-			Debug.Log(int1);
+            // Read destination and position data.
+            byte[] bytes = reader.ReadBytesAndSize();
+
+            // Convert bytes to positional data.
+            Vector3 destination = new Vector3(
+                System.BitConverter.ToSingle(bytes, 0),
+                System.BitConverter.ToSingle(bytes, 4),
+                System.BitConverter.ToSingle(bytes, 8)
+            ),
+            position = new Vector3(
+                System.BitConverter.ToSingle(bytes, 12),
+                System.BitConverter.ToSingle(bytes, 16),
+                System.BitConverter.ToSingle(bytes, 20)
+            );
+
             return;
         }
+
         int num = (int)reader.ReadPackedUInt32();
+
+        // Check for destination set.
         if ((num & 1) != 0)
         {
-            int int1 = (int)reader.ReadPackedUInt32();
+            byte[] bytes = reader.ReadBytesAndSize();
+
+            Vector3 destination = new Vector3(
+                System.BitConverter.ToSingle(bytes, 0),
+                System.BitConverter.ToSingle(bytes, 4),
+                System.BitConverter.ToSingle(bytes, 8)
+            );
+
+            float x = System.BitConverter.ToSingle(bytes, 0),
+                y = System.BitConverter.ToSingle(bytes, 4),
+                z = System.BitConverter.ToSingle(bytes, 8);
+
+            // Set new destination.
+            navMeshAgent.destination = new Vector3(x, y, z);
         }
+
+        // Check for position set.
         if ((num & 2) != 0)
         {
-            int int2 = (int)reader.ReadPackedUInt32();
-        }
-        if ((num & 4) != 0)
-        {
-            string str = reader.ReadString();
+            byte[] bytes = reader.ReadBytesAndSize();
+
+            Vector3 position = new Vector3(
+                System.BitConverter.ToSingle(bytes, 0),
+                System.BitConverter.ToSingle(bytes, 4),
+                System.BitConverter.ToSingle(bytes, 8)
+            );
+
+            // Update current position.
+            transform.position = position;
         }
     }
 }
