@@ -16,6 +16,18 @@ public class Minion : NetworkBehaviour {
 	private NavMeshAgent navMeshAgent;
 	private NetworkedNavAgent navAgent;
 
+	private IEnumerator UpdateTargetPosition()
+	{
+		while (true)
+		{
+			yield return new WaitForSeconds(0.2f);
+
+			Debug.Log(navAgent.IsMoving);
+
+			navAgent.SetDestination(target.position);
+		}
+	}
+
 	void Start () {
 		if (isServer)
 		{
@@ -25,6 +37,8 @@ public class Minion : NetworkBehaviour {
 			damageable = GetComponent<Damageable>();
 
 			navAgent.SetDestination(target.position);
+
+			StartCoroutine(UpdateTargetPosition());
 		}
 	}
 
@@ -32,7 +46,7 @@ public class Minion : NetworkBehaviour {
 	{
 		if (isServer)
 		{
-
+			StartCoroutine(UpdateTargetPosition());
 		}
 	}
 }
