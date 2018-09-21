@@ -14,15 +14,17 @@ public class Minion : NetworkBehaviour {
 	private Damageable damageable;
 	private Damager damager;
 	private NavMeshAgent navMeshAgent;
+	private NetworkedNavAgent navAgent;
 
 	void Start () {
 		if (isServer)
 		{
 			// Get components.
 			navMeshAgent = GetComponent<NavMeshAgent>();
+			navAgent = GetComponent<NetworkedNavAgent>();
 			damageable = GetComponent<Damageable>();
 
-			navMeshAgent.SetDestination(target.position);
+			navAgent.SetDestination(target.position);
 		}
 	}
 
