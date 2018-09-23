@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerCamera : MonoBehaviour
 {
+    [SerializeField] public Vector3[] startPositions;
     [SerializeField] private float moveTime = 1.0f;
     [SerializeField] private float moveSpeed = 1.0f;
     [SerializeField] private float zoomSpeed = 1.0f;

@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4351572071126328}
   - component: {fileID: 114335470341904814}
+  - component: {fileID: 114181888013208302}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -40,6 +41,33 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114181888013208302
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1842046798663800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40ccf06a343162349af7d42a9a9b9c63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnPlayerSpawn:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11500000, guid: 94dd3d7ae43d7eb4f9f8b7aa0d8b1ffb, type: 3}
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: Player+PlayerSpawnEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
 --- !u!114 &114335470341904814
 MonoBehaviour:
   m_ObjectHideFlags: 1

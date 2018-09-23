@@ -12,13 +12,13 @@ public class NetworkedNavAgent : NetworkBehaviour
     private Vector3 targetPosition;
     private NavMeshAgent navMeshAgent;
 
-    public bool IsMoving
+    public bool isMoving
     {
         get
         {
-            if (navMeshAgent.hasPath)
+            if (navMeshAgent.hasPath && !navMeshAgent.isStopped)
             {
-                if (navMeshAgent.pathStatus == NavMeshPathStatus.PathComplete && navMeshAgent.remainingDistance == 0)
+                if (navMeshAgent.pathStatus == NavMeshPathStatus.PathComplete && navMeshAgent.remainingDistance != 0)
                 {
                     return true;
                 }
@@ -45,14 +45,6 @@ public class NetworkedNavAgent : NetworkBehaviour
         navMeshAgent = GetComponent<NavMeshAgent>();
     }
 
-    public void Update()
-    {
-        if (navMeshAgent.isStopped)
-        {
-            Debug.Log("stopped");
-        }
-    }
-
     public override bool OnSerialize(NetworkWriter writer, bool forceAll)
     {
         if (forceAll)
@@ -63,7 +55,7 @@ public class NetworkedNavAgent : NetworkBehaviour
             }
 
             // Allocate byte array for destination and current position.
-            byte[] bytes = new byte[4 * 6];
+            byte[] bytes = new byte[1 + (4 * 6)];
 
             // Convert navmesh destination to byte array.
             byte[] dx = System.BitConverter.GetBytes(navMeshAgent.destination.x),
@@ -71,15 +63,17 @@ public class NetworkedNavAgent : NetworkBehaviour
                 dz = System.BitConverter.GetBytes(navMeshAgent.destination.z),
                 px = System.BitConverter.GetBytes(transform.position.x),
                 py = System.BitConverter.GetBytes(transform.position.y),
-                pz = System.BitConverter.GetBytes(transform.position.z);
+                pz = System.BitConverter.GetBytes(transform.position.z),
+                st = System.BitConverter.GetBytes(navMeshAgent.isStopped);
 
             // Push floats to array.
-            System.Buffer.BlockCopy(dx, 0, bytes, 0, 4);
-            System.Buffer.BlockCopy(dy, 0, bytes, 4, 4);
-            System.Buffer.BlockCopy(dz, 0, bytes, 8, 4);
-            System.Buffer.BlockCopy(px, 0, bytes, 12, 4);
-            System.Buffer.BlockCopy(py, 0, bytes, 16, 4);
-            System.Buffer.BlockCopy(pz, 0, bytes, 20, 4);
+            System.Buffer.BlockCopy(st, 0, bytes, 0, 1);
+            System.Buffer.BlockCopy(dx, 0, bytes, 1, 4);
+            System.Buffer.BlockCopy(dy, 0, bytes, 5, 4);
+            System.Buffer.BlockCopy(dz, 0, bytes, 9, 4);
+            System.Buffer.BlockCopy(px, 0, bytes, 13, 4);
+            System.Buffer.BlockCopy(py, 0, bytes, 17, 4);
+            System.Buffer.BlockCopy(pz, 0, bytes, 21, 4);
 
             // Write destination and position.
             writer.WriteBytesAndSize(bytes, bytes.Length);
@@ -131,6 +125,17 @@ public class NetworkedNavAgent : NetworkBehaviour
             shouldSync = true;
         }
 
+        // Check if navmesh destination should be synced.
+        if ((base.syncVarDirtyBits & 3u) != 0u)
+        {
+            byte[] bytes = System.BitConverter.GetBytes(navMeshAgent.isStopped);
+
+            // Write position vector to stream.
+            writer.WriteBytesAndSize(bytes, bytes.Length);
+
+            shouldSync = true;
+        }
+
         if (!shouldSync)
         {
             writer.WritePackedUInt32(0);
@@ -146,16 +151,18 @@ public class NetworkedNavAgent : NetworkBehaviour
             // Read destination and position data.
             byte[] bytes = reader.ReadBytesAndSize();
 
+            bool isStopped = System.BitConverter.ToBoolean(bytes, 0);
+
             // Convert bytes to positional data.
             Vector3 destination = new Vector3(
-                System.BitConverter.ToSingle(bytes, 0),
-                System.BitConverter.ToSingle(bytes, 4),
-                System.BitConverter.ToSingle(bytes, 8)
+                System.BitConverter.ToSingle(bytes, 1),
+                System.BitConverter.ToSingle(bytes, 5),
+                System.BitConverter.ToSingle(bytes, 9)
             ),
             position = new Vector3(
-                System.BitConverter.ToSingle(bytes, 12),
-                System.BitConverter.ToSingle(bytes, 16),
-                System.BitConverter.ToSingle(bytes, 20)
+                System.BitConverter.ToSingle(bytes, 13),
+                System.BitConverter.ToSingle(bytes, 17),
+                System.BitConverter.ToSingle(bytes, 21)
             );
 
             if (navMeshAgent == null)
@@ -165,6 +172,7 @@ public class NetworkedNavAgent : NetworkBehaviour
 
             navMeshAgent.Warp(position);
             navMeshAgent.SetDestination(destination);
+            navMeshAgent.isStopped = isStopped;
 
             return;
         }
@@ -172,7 +180,7 @@ public class NetworkedNavAgent : NetworkBehaviour
         int num = (int)reader.ReadPackedUInt32();
 
         // Check for position set.
-        if ((num & 2) != 0)
+        if ((num & 1) != 0)
         {
             byte[] bytes = reader.ReadBytesAndSize();
 
@@ -190,7 +198,7 @@ public class NetworkedNavAgent : NetworkBehaviour
         }
 
         // Check for destination set.
-        if ((num & 1) != 0)
+        if ((num & 2) != 0)
         {
             byte[] bytes = reader.ReadBytesAndSize();
 
@@ -202,6 +210,17 @@ public class NetworkedNavAgent : NetworkBehaviour
 
             // Assign new destination.
             navMeshAgent.SetDestination(destination);
+        }
+
+        // Check for isStopped set.
+        if ((num & 3) != 0)
+        {
+            byte[] bytes = reader.ReadBytesAndSize();
+
+            bool isStopped = System.BitConverter.ToBoolean(bytes, 0);
+
+            // Assign new destination.
+            navMeshAgent.isStopped = isStopped;
         }
     }
 }

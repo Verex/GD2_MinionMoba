@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.57481706, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -121,8 +121,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 29319059}
-  - component: {fileID: 29319058}
   - component: {fileID: 29319060}
+  - component: {fileID: 29319058}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -138,7 +138,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 29319057}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -822479833, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Script: {fileID: 11500000, guid: 2007321138c4fbc4a962f998a20e015a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_NetworkPort: 7777
@@ -156,7 +156,9 @@ MonoBehaviour:
   m_PlayerSpawnMethod: 0
   m_OfflineScene: Offline
   m_OnlineScene: Online
-  m_SpawnPrefabs: []
+  m_SpawnPrefabs:
+  - {fileID: 1433062665251720, guid: 175576bc5cc890b48a9aa5fcfd5c806f, type: 2}
+  - {fileID: 1425749703916470, guid: 275649f3fe72f4f4eb99de6c87ffdd79, type: 2}
   m_CustomConfig: 0
   m_MaxConnections: 4
   m_ConnectionConfig:
@@ -199,7 +201,7 @@ MonoBehaviour:
     m_MaxTimerTimeout: 12000
     m_MinNetSimulatorTimeout: 1
     m_MaxNetSimulatorTimeout: 12000
-  m_Channels: 
+  m_Channels: 0500000000000000
   m_UseWebSockets: 0
   m_UseSimulator: 0
   m_SimulatedLatency: 1
@@ -212,6 +214,7 @@ MonoBehaviour:
   matchSize: 4
   isNetworkActive: 0
   matchMaker: {fileID: 0}
+  players: []
 --- !u!4 &29319059
 Transform:
   m_ObjectHideFlags: 0
