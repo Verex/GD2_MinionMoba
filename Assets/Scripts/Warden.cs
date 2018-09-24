@@ -25,6 +25,7 @@ public class Warden : NetworkBehaviour
 
     private List<TowerSpawnPoint>[] towerSpawnPoints;
     private List<MinionSpawnPoint>[] minionSpawnPoints;
+    private List<List<Vector3>>[] minionPaths;
     private BaseSpawnPoint[] baseSpawnPoints;
     private NetManager netManager;
 
@@ -34,6 +35,8 @@ public class Warden : NetworkBehaviour
         {
             foreach (Player player in netManager.players)
             {
+                int pathIndex = 0;
+
                 foreach (MinionSpawnPoint point in minionSpawnPoints[player.index])
                 {
                     GameObject minion = Instantiate(minionPrefab, point.transform.position, point.transform.rotation);
@@ -45,6 +48,12 @@ public class Warden : NetworkBehaviour
 
                     // Add minion to player's list.
                     player.minions.Add(m);
+
+                    // Add path to queue.
+                    m.path = new Queue<Vector3>(minionPaths[player.index][pathIndex]);
+
+                    // Set next path index.
+                    pathIndex = (pathIndex + 1) % minionPaths[player.index].Count; 
                 }
             }
 
@@ -173,8 +182,10 @@ public class Warden : NetworkBehaviour
             minionSpawnPoints[i] = new List<MinionSpawnPoint>();
         }
 
+        // Find all minion spawn points.
         Object[] minionSpawns = FindObjectsOfType(typeof(MinionSpawnPoint));
 
+        // Sort and store minion spawn points.
         foreach (Object spawn in minionSpawns)
         {
             MinionSpawnPoint msp = (MinionSpawnPoint)spawn;
@@ -182,6 +193,47 @@ public class Warden : NetworkBehaviour
             if (msp.playerID >= 0 && msp.playerID < maxPlayerCount)
             {
                 minionSpawnPoints[msp.playerID].Add(msp);
+            }
+        }
+
+        // Setup minion path lists.
+        minionPaths = new List<List<Vector3>>[maxPlayerCount];
+
+        // Setup array of lists.
+        for (int i = 0; i < maxPlayerCount; i++)
+        {
+            minionPaths[i] = new List<List<Vector3>>();
+        }
+
+        // Find all path starting nodes.
+        Object[] pathStartNodes = FindObjectsOfType(typeof(PathStartNode));
+
+        foreach (Object startNode in pathStartNodes)
+        {
+            PathStartNode sNode = (PathStartNode)startNode;
+
+            if (sNode.playerIndex >= 0 && sNode.playerIndex < maxPlayerCount)
+            {
+                List<Vector3> path = new List<Vector3>();
+
+                // Add starting node position.
+                path.Add(sNode.transform.position);
+
+                // Get path node component.
+                PathNode node = sNode.gameObject.GetComponent<PathNode>();
+
+                do
+                {
+                    // Move to next node.
+                    node = node.next;
+
+                    // Add node to list.
+                    path.Add(node.transform.position);
+                }
+                while (node.next != null);
+
+                // Add path to list.
+                minionPaths[sNode.playerIndex].Add(path);
             }
         }
 

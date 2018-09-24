@@ -17,6 +17,7 @@ public class Minion : NetworkBehaviour
     private NavMeshAgent navMeshAgent;
     private NetworkedNavAgent navAgent;
     private Animator animator;
+    public Queue<Vector3> path;
 
     [ClientRpc]
     public void RpcSetTeamMaterial(int mid)
@@ -53,6 +54,13 @@ public class Minion : NetworkBehaviour
 
             // Set nav agent destination.
             //navAgent.SetDestination(target.position);
+
+            // Check if we have path.
+            if (path != null)
+            {
+                // Move to first point in path.
+                navAgent.SetDestination(path.Dequeue());
+            }
         }
 
         if (isClient)
