@@ -2,4 +2,4 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerBaseSpawnPoint : SpawnPoint {}
+public class BaseSpawnPoint : SpawnPoint {}

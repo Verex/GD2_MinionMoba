@@ -90,7 +90,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ShowResolutionOverlay: 1
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -159,6 +159,7 @@ MonoBehaviour:
   m_SpawnPrefabs:
   - {fileID: 1433062665251720, guid: 175576bc5cc890b48a9aa5fcfd5c806f, type: 2}
   - {fileID: 1425749703916470, guid: 275649f3fe72f4f4eb99de6c87ffdd79, type: 2}
+  - {fileID: 1797625074470192, guid: 22ab1518866ea0c419fc5ee04e8d9f5b, type: 2}
   m_CustomConfig: 0
   m_MaxConnections: 4
   m_ConnectionConfig:

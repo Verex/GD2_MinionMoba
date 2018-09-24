@@ -13,12 +13,15 @@ public class Warden : NetworkBehaviour
 	}
     [System.Serializable] public class GameStartEvent : UnityEvent<Warden> { }
     [SerializeField] private GameObject towerPrefab;
+    [SerializeField] private GameObject basePrefab;
+    [SerializeField] public Material[] playerColor;
     [SerializeField] public int maxPlayerCount = 2;
 
 	public GameStartEvent OnGameStart;
 	public GameState currentState;
 
-    private List<TowerSpawnPoint>[] towerSpawnLocations;
+    private List<TowerSpawnPoint>[] towerSpawnPoints;
+    private BaseSpawnPoint[] baseSpawnPoints;
     private NetManager netManager;
 
     private IEnumerator PlayerWait()
@@ -26,7 +29,7 @@ public class Warden : NetworkBehaviour
         // Wait until all players connected.
         yield return new WaitUntil(() => netManager.players.Count == maxPlayerCount);
 
-		Debug.Log("All players joined. Spawning towers...");
+		Debug.Log("All players joined. Spawning player objects.");
 
         foreach (Player player in netManager.players)
         {
@@ -34,10 +37,23 @@ public class Warden : NetworkBehaviour
 			OnGameStart.AddListener(player.OnGameStart);
 
             // Spawn player's towers.
-            foreach (TowerSpawnPoint point in towerSpawnLocations[player.index])
+            foreach (TowerSpawnPoint point in towerSpawnPoints[player.index])
             {
                 GameObject tower = Instantiate(towerPrefab, point.transform.position, point.transform.rotation);
+
                 NetworkServer.Spawn(tower);
+
+                Tower playerTower = tower.GetComponent<Tower>();
+                playerTower.RpcSetTeamMaterial(player.index);
+            }
+
+            if (baseSpawnPoints[player.index] != null)
+            {
+                GameObject playerBase = Instantiate(basePrefab, 
+                    baseSpawnPoints[player.index].transform.position, 
+                    baseSpawnPoints[player.index].transform.rotation);
+
+                NetworkServer.Spawn(playerBase);
             }
         }
 
@@ -59,11 +75,11 @@ public class Warden : NetworkBehaviour
         netManager = (NetManager)NetworkManager.singleton;
 
         // Initialize player tower spawn location lists.
-        towerSpawnLocations = new List<TowerSpawnPoint>[maxPlayerCount];
+        towerSpawnPoints = new List<TowerSpawnPoint>[maxPlayerCount];
 
         for (int i = 0; i < maxPlayerCount; i++)
         {
-            towerSpawnLocations[i] = new List<TowerSpawnPoint>();
+            towerSpawnPoints[i] = new List<TowerSpawnPoint>();
         }
 
         // Find all player tower spawn locations.
@@ -76,7 +92,23 @@ public class Warden : NetworkBehaviour
 
             if (tsp.playerID >= 0 && tsp.playerID < maxPlayerCount)
             {
-                towerSpawnLocations[tsp.playerID].Add(tsp);
+                towerSpawnPoints[tsp.playerID].Add(tsp);
+            }
+        }
+
+        // Initialize player base spawn points.
+        baseSpawnPoints = new BaseSpawnPoint[maxPlayerCount];
+
+        // Find player base spawn points.
+        Object[] baseSpawns = FindObjectsOfType(typeof(BaseSpawnPoint));
+
+        foreach (Object spawn in baseSpawns)
+        {
+            BaseSpawnPoint bsp = (BaseSpawnPoint) spawn;
+
+            if (bsp.playerID >= 0 && bsp.playerID < maxPlayerCount)
+            {
+                baseSpawnPoints[bsp.playerID] = bsp;
             }
         }
 

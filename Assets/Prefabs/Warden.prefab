@@ -9,31 +9,31 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1685435289605072}
+  m_RootGameObject: {fileID: 1473962610382804}
   m_IsPrefabAsset: 1
---- !u!1 &1685435289605072
+--- !u!1 &1473962610382804
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4268373274454778}
-  - component: {fileID: 114323420106817140}
-  - component: {fileID: 114338088033363132}
+  - component: {fileID: 4285596740786490}
+  - component: {fileID: 114573531971638438}
+  - component: {fileID: 114583890594503380}
   m_Layer: 0
-  m_Name: TowerSpawnPoint
+  m_Name: Warden
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4268373274454778
+--- !u!4 &4285596740786490
 Transform:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1685435289605072}
+  m_GameObject: {fileID: 1473962610382804}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -41,12 +41,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114323420106817140
+--- !u!114 &114573531971638438
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1685435289605072}
+  m_GameObject: {fileID: 1473962610382804}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
@@ -55,34 +55,45 @@ MonoBehaviour:
   m_SceneId:
     m_Value: 0
   m_AssetId:
-    i0: 78
-    i1: 239
-    i2: 50
-    i3: 80
-    i4: 145
-    i5: 154
-    i6: 122
-    i7: 148
-    i8: 120
-    i9: 6
-    i10: 84
-    i11: 100
-    i12: 178
-    i13: 6
-    i14: 185
-    i15: 122
+    i0: 143
+    i1: 164
+    i2: 177
+    i3: 54
+    i4: 230
+    i5: 30
+    i6: 187
+    i7: 52
+    i8: 200
+    i9: 49
+    i10: 78
+    i11: 213
+    i12: 158
+    i13: 173
+    i14: 162
+    i15: 22
   m_ServerOnly: 1
   m_LocalPlayerAuthority: 0
---- !u!114 &114338088033363132
+--- !u!114 &114583890594503380
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1685435289605072}
+  m_GameObject: {fileID: 1473962610382804}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 221ce58086328614dba0d4bd274cecd2, type: 3}
+  m_Script: {fileID: 11500000, guid: 94dd3d7ae43d7eb4f9f8b7aa0d8b1ffb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  viewMesh: {fileID: 4300000, guid: 5ba0445453043fa4db21f251491f4e2e, type: 3}
-  playerID: 0
+  towerPrefab: {fileID: 1425749703916470, guid: 275649f3fe72f4f4eb99de6c87ffdd79,
+    type: 2}
+  basePrefab: {fileID: 1797625074470192, guid: 22ab1518866ea0c419fc5ee04e8d9f5b, type: 2}
+  playerColor:
+  - {fileID: 2100000, guid: 4d73b5e9fabe03d4bb7e259d3d3a7f65, type: 2}
+  - {fileID: 2100000, guid: 6da0b3e7cbdda064488bb1840bd4c4b7, type: 2}
+  maxPlayerCount: 2
+  OnGameStart:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: Warden+GameStartEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  currentState: 0
