@@ -42,10 +42,21 @@ public class Warden : NetworkBehaviour
 
                     Minion m = minion.GetComponent<Minion>();
                     m.RpcSetTeamMaterial(player.index);
+
+                    // Add minion to player's list.
+                    player.minions.Add(m);
                 }
             }
 
             yield return new WaitForSeconds(10.0f);
+        }
+    }
+
+    private IEnumerator GameUpdate()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.2f);
         }
     }
 
@@ -70,6 +81,9 @@ public class Warden : NetworkBehaviour
 
                 Tower playerTower = tower.GetComponent<Tower>();
                 playerTower.RpcSetTeamMaterial(player.index);
+
+                // Add tower to list.
+                player.towers.Add(playerTower);
             }
 
             if (baseSpawnPoints[player.index] != null)
@@ -82,6 +96,9 @@ public class Warden : NetworkBehaviour
 
                 Base pb = playerBase.GetComponent<Base>();
                 pb.RpcSetTeamMaterial(player.index);
+
+                // Assign players base.
+                player.playerBase = pb;
             }
         }
 
@@ -91,7 +108,11 @@ public class Warden : NetworkBehaviour
         // Invoke game start event.
         OnGameStart.Invoke(this);
 
+        // Start minion spawning coroutine.
         StartCoroutine(MinionSpawn());
+
+        // Start game control coroutine.
+        StartCoroutine(GameUpdate());
 
         yield break;
     }

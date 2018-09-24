@@ -6,6 +6,9 @@ using UnityEngine.Networking;
 
 public class Player : NetworkBehaviour
 {
+    public Base playerBase;
+    public List<Tower> towers;
+    public List<Minion> minions;
     new private PlayerCamera camera;
     public int index;
 
@@ -35,6 +38,6 @@ public class Player : NetworkBehaviour
 
     public void OnGameStart(Warden warden)
     {
-        Debug.Log("Game started!");
+        
     }
 }
