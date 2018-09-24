@@ -87,9 +87,14 @@ MonoBehaviour:
   towerPrefab: {fileID: 1425749703916470, guid: 275649f3fe72f4f4eb99de6c87ffdd79,
     type: 2}
   basePrefab: {fileID: 1797625074470192, guid: 22ab1518866ea0c419fc5ee04e8d9f5b, type: 2}
+  minionPrefab: {fileID: 1433062665251720, guid: 175576bc5cc890b48a9aa5fcfd5c806f,
+    type: 2}
   playerColor:
   - {fileID: 2100000, guid: 4d73b5e9fabe03d4bb7e259d3d3a7f65, type: 2}
   - {fileID: 2100000, guid: 6da0b3e7cbdda064488bb1840bd4c4b7, type: 2}
+  playerMinionMaterial:
+  - {fileID: 2100000, guid: 7e36b56ede9a34949a1efe3d234a7a6d, type: 2}
+  - {fileID: 2100000, guid: 37ae5dfd54c7dd84bb9961a58e4d2205, type: 2}
   maxPlayerCount: 2
   OnGameStart:
     m_PersistentCalls:

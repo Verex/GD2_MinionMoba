@@ -5,8 +5,6 @@ using UnityEngine.Networking;
 
 public class Tower : NetworkBehaviour
 {
-	[SerializeField] public static Material[] playerColor;
-
     [ClientRpc]
     public void RpcSetTeamMaterial(int mid)
     {

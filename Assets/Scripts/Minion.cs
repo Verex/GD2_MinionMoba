@@ -16,13 +16,23 @@ public class Minion : NetworkBehaviour
     private Damager damager;
     private NavMeshAgent navMeshAgent;
     private NetworkedNavAgent navAgent;
-	private Animator animator;
+    private Animator animator;
+
+    [ClientRpc]
+    public void RpcSetTeamMaterial(int mid)
+    {
+        // Find warden.
+        Warden warden = (Warden)GameObject.FindObjectOfType(typeof(Warden));
+
+        Renderer r = transform.GetChild(0).GetComponent<Renderer>();
+        r.material = warden.playerMinionMaterial[mid];
+    }
 
     private IEnumerator UpdateAnimation()
     {
         while (true)
         {
-			// Update animator.
+            // Update animator.
             animator.SetBool("moving", navAgent.isMoving);
 
             yield return new WaitForSeconds(0.01f);
@@ -33,7 +43,7 @@ public class Minion : NetworkBehaviour
     {
         // Get shared components.
         navAgent = GetComponent<NetworkedNavAgent>();
-		animator = GetComponent<Animator>();
+        animator = GetComponent<Animator>();
 
         if (isServer)
         {
@@ -42,20 +52,20 @@ public class Minion : NetworkBehaviour
             damageable = GetComponent<Damageable>();
 
             // Set nav agent destination.
-            navAgent.SetDestination(target.position);
+            //navAgent.SetDestination(target.position);
         }
 
-		if (isClient)
-		{
-			StartCoroutine(UpdateAnimation());
-		}
+        if (isClient)
+        {
+            StartCoroutine(UpdateAnimation());
+        }
     }
 
     public void OnDie(Damageable dmg, Damager dmger)
     {
         if (isServer)
         {
-			
+
         }
     }
 }
