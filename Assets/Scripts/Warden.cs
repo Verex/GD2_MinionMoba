@@ -39,18 +39,23 @@ public class Warden : NetworkBehaviour
 
                 foreach (MinionSpawnPoint point in minionSpawnPoints[player.index])
                 {
-                    GameObject minion = Instantiate(minionPrefab, point.transform.position, point.transform.rotation);
+                    // Create minion game object.
+                    GameObject mGameObject = Instantiate(minionPrefab, point.transform.position, point.transform.rotation);
 
-                    NetworkServer.Spawn(minion);
+                    // Push game object to server.
+                    NetworkServer.Spawn(mGameObject);
 
-                    Minion m = minion.GetComponent<Minion>();
-                    m.RpcSetTeamMaterial(player.index);
+                    // Get the minion's main component.
+                    Minion minion = mGameObject.GetComponent<Minion>();
+
+                    // Assign team material.
+                    minion.RpcSetTeamMaterial(player.index);
 
                     // Add minion to player's list.
-                    player.minions.Add(m);
+                    player.minions.Add(minion);
 
                     // Add path to queue.
-                    m.path = new Queue<Vector3>(minionPaths[player.index][pathIndex]);
+                    minion.path = new Queue<Vector3>(minionPaths[player.index][pathIndex]);
 
                     // Set next path index.
                     pathIndex = (pathIndex + 1) % minionPaths[player.index].Count; 
@@ -72,7 +77,7 @@ public class Warden : NetworkBehaviour
     private IEnumerator PlayerWait()
     {
         // Wait until all players connected.
-        yield return new WaitUntil(() => netManager.players.Count == maxPlayerCount);
+        yield return new WaitUntil(() => netManager.players.Count == 1);
 
         Debug.Log("All players joined. Spawning player objects.");
 

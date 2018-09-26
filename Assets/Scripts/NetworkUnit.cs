@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class NetworkEntity : NetworkBehaviour
+[RequireComponent(typeof(Damageable))]
+public abstract class NetworkUnit : NetworkBehaviour
 {
+    public Warden warden;
     protected Damageable damageable;
 
-    void Start()
+    [ClientRpc] public abstract void RpcSetTeamMaterial(int mid);
+
+    protected virtual void Start()
     {
         // Get components.
         damageable = GetComponent<Damageable>();

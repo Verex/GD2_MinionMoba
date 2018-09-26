@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class Tower : NetworkBehaviour
+public class Tower : NetworkAttackUnit
 {
     [ClientRpc]
-    public void RpcSetTeamMaterial(int mid)
+    public override void RpcSetTeamMaterial(int mid)
     {
-		// Find warden.
-		Warden warden = (Warden)GameObject.FindObjectOfType(typeof(Warden));
+        // Find the game's warden.
+        warden = (Warden)GameObject.FindObjectOfType(typeof(Warden));
 
         Renderer r = transform.Find("body").GetComponent<Renderer>();
+
         Material[] materials = r.materials;
+
         materials[2] = warden.playerColor[mid];
+
 		r.materials = materials;
     }
 

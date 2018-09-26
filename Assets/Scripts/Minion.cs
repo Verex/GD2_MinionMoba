@@ -9,22 +9,18 @@ using UnityEngine.AI;
     typeof(Damageable),
     typeof(Damager)
     )]
-public class Minion : NetworkAttackUnit
+public class Minion : NetworkOffenceUnit
 {
-    [SerializeField] public Transform target;
-    private Damageable damageable;
-    private Damager damager;
-    private NavMeshAgent navMeshAgent;
-    private NetworkedNavAgent navAgent;
     private Animator animator;
+
     public Queue<Vector3> path;
 
     [ClientRpc]
-    public void RpcSetTeamMaterial(int mid)
+    public override void RpcSetTeamMaterial(int mid)
     {
-        // Find warden.
-        Warden warden = (Warden)GameObject.FindObjectOfType(typeof(Warden));
-
+        // Find the game's warden.
+        warden = (Warden)GameObject.FindObjectOfType(typeof(Warden));
+        
         Renderer r = transform.GetChild(0).GetComponent<Renderer>();
         r.material = warden.playerMinionMaterial[mid];
     }
@@ -34,15 +30,10 @@ public class Minion : NetworkAttackUnit
         while (true)
         {
             // Update animator.
-            animator.SetBool("moving", navAgent.isMoving);
+            animator.SetBool("moving", netNavAgent.isMoving);
 
             yield return new WaitForSeconds(0.01f);
         }
-    }
-
-    private void FindTarget()
-    {
-
     }
 
     private IEnumerator MinionUpdate()
@@ -55,7 +46,7 @@ public class Minion : NetworkAttackUnit
                 && navMeshAgent.remainingDistance < 0.5f && path.Count > 0)
                 {
                     // Move to next point in path.
-                    navAgent.SetDestination(path.Dequeue());
+                    netNavAgent.SetDestination(path.Dequeue());
                 }
             }
 
@@ -63,23 +54,20 @@ public class Minion : NetworkAttackUnit
         }
     }
 
-    void Start()
+    protected override void Start()
     {
+        base.Start();
+
         // Get shared components.
-        navAgent = GetComponent<NetworkedNavAgent>();
         animator = GetComponent<Animator>();
 
         if (isServer)
         {
-            // Get components.
-            navMeshAgent = GetComponent<NavMeshAgent>();
-            damageable = GetComponent<Damageable>();
-
             // Check if we have path.
             if (path != null)
             {
                 // Move to first point in path.
-                navAgent.SetDestination(path.Dequeue());
+                netNavAgent.SetDestination(path.Dequeue());
             }
 
             StartCoroutine(MinionUpdate());

@@ -3,7 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class NetworkAttackUnit : NetworkUnit
+[RequireComponent(typeof(Damager))]
+public abstract class NetworkAttackUnit : NetworkUnit
 {
+    protected Damager damager;
 
+    protected override void Start()
+    {
+        base.Start();
+
+        // Get components.
+        damager = GetComponent<Damager>();
+    }
 }
