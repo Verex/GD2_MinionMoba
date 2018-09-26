@@ -9,7 +9,7 @@ using UnityEngine.AI;
     typeof(Damageable),
     typeof(Damager)
     )]
-public class Minion : NetworkBehaviour
+public class Minion : NetworkAttackUnit
 {
     [SerializeField] public Transform target;
     private Damageable damageable;
@@ -40,6 +40,29 @@ public class Minion : NetworkBehaviour
         }
     }
 
+    private void FindTarget()
+    {
+
+    }
+
+    private IEnumerator MinionUpdate()
+    {
+        while (true)
+        {
+            if (!navMeshAgent.pathPending && navMeshAgent.hasPath && !navMeshAgent.isStopped)
+            {
+                if (navMeshAgent.pathStatus == NavMeshPathStatus.PathComplete
+                && navMeshAgent.remainingDistance < 0.5f && path.Count > 0)
+                {
+                    // Move to next point in path.
+                    navAgent.SetDestination(path.Dequeue());
+                }
+            }
+
+            yield return new WaitForSeconds(0.08f);
+        }
+    }
+
     void Start()
     {
         // Get shared components.
@@ -52,15 +75,14 @@ public class Minion : NetworkBehaviour
             navMeshAgent = GetComponent<NavMeshAgent>();
             damageable = GetComponent<Damageable>();
 
-            // Set nav agent destination.
-            //navAgent.SetDestination(target.position);
-
             // Check if we have path.
             if (path != null)
             {
                 // Move to first point in path.
                 navAgent.SetDestination(path.Dequeue());
             }
+
+            StartCoroutine(MinionUpdate());
         }
 
         if (isClient)

@@ -39,6 +39,12 @@ public class NetworkedNavAgent : NetworkBehaviour
         SetDirtyBit(2u);
     }
 
+    public void SetIsStopped(bool isStopped)
+    {
+        navMeshAgent.isStopped = isStopped;
+        SetDirtyBit(4u);
+    }
+
     private void Start()
     {
         // Get components.
@@ -126,7 +132,7 @@ public class NetworkedNavAgent : NetworkBehaviour
         }
 
         // Check if navmesh destination should be synced.
-        if ((base.syncVarDirtyBits & 3u) != 0u)
+        if ((base.syncVarDirtyBits & 4u) != 0u)
         {
             byte[] bytes = System.BitConverter.GetBytes(navMeshAgent.isStopped);
 
@@ -213,7 +219,7 @@ public class NetworkedNavAgent : NetworkBehaviour
         }
 
         // Check for isStopped set.
-        if ((num & 3) != 0)
+        if ((num & 4) != 0)
         {
             byte[] bytes = reader.ReadBytesAndSize();
 
