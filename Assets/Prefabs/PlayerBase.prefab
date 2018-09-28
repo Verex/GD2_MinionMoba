@@ -615,5 +615,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 937ef1d6bec849c488a2ca4888bd3a4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clientUpdateDelay: 0.02
+  serverUpdateDelay: 0.04
   warden: {fileID: 0}
   ownerIndex: 0

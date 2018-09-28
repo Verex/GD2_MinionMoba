@@ -1077,11 +1077,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb2b869a802f97447b15b6cd94edbcdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clientUpdateDelay: 0.02
+  serverUpdateDelay: 0.04
   warden: {fileID: 0}
   ownerIndex: 0
+  targetRange: 8
   targetSearchMask:
     serializedVersion: 2
     m_Bits: 1024
+  maxTargets: 1
 --- !u!114 &114092887597413938
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1138,6 +1142,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  currentHealth: 0
   OnTakeDamage:
     m_PersistentCalls:
       m_Calls: []

@@ -6,9 +6,6 @@ using UnityEngine.AI;
 
 public class Minion : NetworkOffenceUnit
 {
-    [SerializeField] private LayerMask targetSearchMask;
-    private Animator animator;
-
     public Queue<Vector3> path;
 
     public override void SetTeamMaterial(int mid)
@@ -17,75 +14,60 @@ public class Minion : NetworkOffenceUnit
         r.material = warden.playerMinionMaterial[mid];
     }
 
-    private IEnumerator UpdateAnimation()
+    protected override bool shouldFindTargets
     {
-        while (true)
+        get
         {
-            // Update animator.
-            animator.SetBool("moving", netNavAgent.isMoving);
-
-            yield return new WaitForSeconds(0.01f);
+            return targets.Count == 0;
         }
     }
 
-    private void FindTarget()
+    protected override IEnumerator ServerUpdate()
     {
-        Collider[] colliders = Physics.OverlapBox(gameObject.transform.position, Vector3.one * 8, Quaternion.identity, targetSearchMask);
+        yield return base.ServerUpdate();
 
-        foreach (Collider collider in colliders)
+        // Chheck if we're moving along the path.
+        if (!navMeshAgent.pathPending && navMeshAgent.hasPath && !navMeshAgent.isStopped
+        && navMeshAgent.pathStatus == NavMeshPathStatus.PathComplete)
         {
-            if (ownerIndex != collider.GetComponent<NetworkUnit>().ownerIndex)
+            // Check for targets.
+            if (targets.Count == 0)
             {
-                target = collider.GetComponent<Damageable>();
-            }
-        }
-    }
-
-    private IEnumerator MinionUpdate()
-    {
-        while (true)
-        {
-            if (!navMeshAgent.pathPending && navMeshAgent.hasPath && !navMeshAgent.isStopped
-            && navMeshAgent.pathStatus == NavMeshPathStatus.PathComplete)
-            {
-                // Find target.
-                if (target == null)
+                // Check if destination needs to be updated.
+                if (navMeshAgent.remainingDistance < 0.5f && path.Count > 0)
                 {
-                    FindTarget();
-
-                    // Check if destination needs to be updated.
-                    if (navMeshAgent.remainingDistance < 0.5f && path.Count > 0)
-                    {
-                        // Move to next point in path.
-                        netNavAgent.SetDestination(path.Dequeue());
-                    }
-                }
-                else
-                {
-                    if (!navMeshAgent.isStopped)
-                    {
-                        // Stop navmesh movement.
-                        netNavAgent.SetIsStopped(true);
-
-                        yield return new WaitForSeconds(0.2f);
-                    }
+                    // Move to next point in path.
+                    netNavAgent.SetDestination(path.Dequeue());
                 }
             }
             else
             {
-                if (target != null)
+                if (!navMeshAgent.isStopped)
                 {
-                    damager.Damage(target);
+                    // Stop navmesh movement.
+                    netNavAgent.SetIsStopped(true);
 
                     yield return new WaitForSeconds(0.2f);
                 }
-                else
-                {
-                    netNavAgent.SetIsStopped(false);
-                }
             }
+        }
+        else
+        {
+            if (targets.Count > 0)
+            {
+                // Damage all targets.
+                for (int i = 0; i < Mathf.Min(maxTargets, targets.Count); i++)
+                {
+                    Debug.Log("Attacked!");
+                    damager.Damage(targets[i]);
+                }
 
-            yield return new WaitForSeconds(0.08f);
+                yield return new WaitForSeconds(0.2f);
+            }
+            else
+            {
+                netNavAgent.SetIsStopped(false);
+            }
         }
     }
 
@@ -104,13 +86,6 @@ public class Minion : NetworkOffenceUnit
                 // Move to first point in path.
                 netNavAgent.SetDestination(path.Dequeue());
             }
-
-            StartCoroutine(MinionUpdate());
-        }
-
-        if (isClient)
-        {
-            StartCoroutine(UpdateAnimation());
         }
     }
 
@@ -126,7 +101,8 @@ public class Minion : NetworkOffenceUnit
     {
         if (isServer)
         {
-            target = null;
+            // Remove target from our list.
+            targets.Remove(dmg);
         }
     }
 }
