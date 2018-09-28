@@ -38,10 +38,13 @@ public abstract class NetworkAttackUnit : NetworkUnit
                 Damageable target = collider.GetComponent<Damageable>();
                 if (!targets.Exists((Damageable t) => t == target))
                 {
-                    // Add damageables to targets.
-                    targets.Add(collider.GetComponent<Damageable>());
+                    Damageable dmg = collider.GetComponent<Damageable>();
 
-                    Debug.Log("target found");
+                    // Add damageables to targets.
+                    targets.Add(dmg);
+
+                    // Listen for target's death.
+                    dmg.OnDie.AddListener(OnTargetKilled);
                 }
             }
         }
@@ -56,5 +59,20 @@ public abstract class NetworkAttackUnit : NetworkUnit
 
         // Set up target list.
         targets = new List<Damageable>();
+    }
+
+    public virtual void OnTargetKilled(Damageable dmg, Damager dmgr)
+    {
+        if (isServer)
+        {
+            //int r = targets.RemoveAll(x => x.gameObject.Equals(dmg.gameObject));
+
+            // Remove target from our list.
+            if (targets.Remove(dmg))
+            {
+
+                Debug.Log("target removed" + targets.Count);
+            }
+        }
     }
 }

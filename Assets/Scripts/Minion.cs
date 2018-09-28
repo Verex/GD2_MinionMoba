@@ -58,7 +58,6 @@ public class Minion : NetworkOffenceUnit
                 // Damage all targets.
                 for (int i = 0; i < Mathf.Min(maxTargets, targets.Count); i++)
                 {
-                    Debug.Log("Attacked!");
                     damager.Damage(targets[i]);
                 }
 
@@ -94,15 +93,6 @@ public class Minion : NetworkOffenceUnit
         if (isServer)
         {
             NetworkServer.Destroy(this.gameObject);
-        }
-    }
-
-    public void OnTargetKilled(Damageable dmg, Damager dmgr)
-    {
-        if (isServer)
-        {
-            // Remove target from our list.
-            targets.Remove(dmg);
         }
     }
 }
