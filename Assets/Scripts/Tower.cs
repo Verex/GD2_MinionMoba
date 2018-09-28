@@ -5,19 +5,27 @@ using UnityEngine.Networking;
 
 public class Tower : NetworkAttackUnit
 {
-    [ClientRpc]
-    public override void RpcSetTeamMaterial(int mid)
+    public override void SetTeamMaterial(int mid)
     {
-        // Find the game's warden.
-        warden = (Warden)GameObject.FindObjectOfType(typeof(Warden));
+        // Get renderer component.
+        Renderer renderer = transform.Find("body").GetComponent<Renderer>();
 
-        Renderer r = transform.Find("body").GetComponent<Renderer>();
+        // Get the current materials.
+        Material[] materials = renderer.materials;
 
-        Material[] materials = r.materials;
-
+        // Assign material for glow.
         materials[2] = warden.playerColor[mid];
 
-		r.materials = materials;
+        // Update renderer materials.
+        renderer.materials = materials;
+    }
+
+    public void OnDie(Damageable dmg, Damager dmger)
+    {
+        if (isServer)
+        {
+            NetworkServer.Destroy(this.gameObject);
+        }
     }
 
 }

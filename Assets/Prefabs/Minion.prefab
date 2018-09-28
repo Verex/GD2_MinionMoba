@@ -297,9 +297,10 @@ GameObject:
   - component: {fileID: 114557013015388934}
   - component: {fileID: 114904238259107260}
   - component: {fileID: 114742384228185234}
-  m_Layer: 0
+  - component: {fileID: 65316726725074846}
+  m_Layer: 10
   m_Name: Minion
-  m_TagString: Untagged
+  m_TagString: Minion
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -652,7 +653,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1433062665251720}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.436252, y: -2.842171e-16, z: -8.710455}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children:
   - {fileID: 4843024522572502}
@@ -1035,6 +1036,18 @@ Transform:
   m_Father: {fileID: 4009176939806966}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &65316726725074846
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1433062665251720}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 4, y: 4, z: 3}
+  m_Center: {x: 0, y: 2.32, z: 0}
 --- !u!95 &95623550382814064
 Animator:
   serializedVersion: 3
@@ -1064,7 +1077,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb2b869a802f97447b15b6cd94edbcdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  warden: {fileID: 0}
+  ownerIndex: 0
+  targetSearchMask:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!114 &114092887597413938
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1164,6 +1181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 15
+  damageVarianceRange: 12
   OnDamage:
     m_PersistentCalls:
       m_Calls: []

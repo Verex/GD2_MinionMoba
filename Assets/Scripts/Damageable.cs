@@ -10,13 +10,12 @@ public class Damageable : MonoBehaviour
     [System.Serializable] public class HealthSetEvent : UnityEvent<Damageable> { }
     [System.Serializable] public class DeathEvent : UnityEvent<Damageable, Damager> { }
     [SerializeField] private float maxHealth;
+    [SerializeField] private float currentHealth;
 
     public DamageEvent OnTakeDamage;
     public HealEvent OnHeal;
     public HealthSetEvent OnHealthSet;
     public DeathEvent OnDie;
-
-    private float currentHealth;
 
     public float HealthRatio
     {

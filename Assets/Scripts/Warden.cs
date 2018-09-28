@@ -51,6 +51,8 @@ public class Warden : NetworkBehaviour
                     // Assign team material.
                     minion.RpcSetTeamMaterial(player.index);
 
+                    minion.ownerIndex = player.index;
+
                     // Add minion to player's list.
                     player.minions.Add(minion);
 
@@ -62,7 +64,7 @@ public class Warden : NetworkBehaviour
                 }
             }
 
-            yield return new WaitForSeconds(10.0f);
+            yield return new WaitForSeconds(8.0f);
         }
     }
 
@@ -77,7 +79,7 @@ public class Warden : NetworkBehaviour
     private IEnumerator PlayerWait()
     {
         // Wait until all players connected.
-        yield return new WaitUntil(() => netManager.players.Count == 1);
+        yield return new WaitUntil(() => netManager.players.Count == maxPlayerCount);
 
         Debug.Log("All players joined. Spawning player objects.");
 
@@ -94,7 +96,10 @@ public class Warden : NetworkBehaviour
                 NetworkServer.Spawn(tower);
 
                 Tower playerTower = tower.GetComponent<Tower>();
+
                 playerTower.RpcSetTeamMaterial(player.index);
+
+                playerTower.ownerIndex = player.index;
 
                 // Add tower to list.
                 player.towers.Add(playerTower);
@@ -110,6 +115,8 @@ public class Warden : NetworkBehaviour
 
                 Base pb = playerBase.GetComponent<Base>();
                 pb.RpcSetTeamMaterial(player.index);
+
+                pb.ownerIndex = player.index;
 
                 // Assign players base.
                 player.playerBase = pb;

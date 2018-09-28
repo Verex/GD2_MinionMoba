@@ -4,23 +4,15 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.AI;
 
-[RequireComponent(
-    typeof(NavMeshAgent),
-    typeof(Damageable),
-    typeof(Damager)
-    )]
 public class Minion : NetworkOffenceUnit
 {
+    [SerializeField] private LayerMask targetSearchMask;
     private Animator animator;
 
     public Queue<Vector3> path;
 
-    [ClientRpc]
-    public override void RpcSetTeamMaterial(int mid)
+    public override void SetTeamMaterial(int mid)
     {
-        // Find the game's warden.
-        warden = (Warden)GameObject.FindObjectOfType(typeof(Warden));
-        
         Renderer r = transform.GetChild(0).GetComponent<Renderer>();
         r.material = warden.playerMinionMaterial[mid];
     }
@@ -36,17 +28,60 @@ public class Minion : NetworkOffenceUnit
         }
     }
 
+    private void FindTarget()
+    {
+        Collider[] colliders = Physics.OverlapBox(gameObject.transform.position, Vector3.one * 8, Quaternion.identity, targetSearchMask);
+
+        foreach (Collider collider in colliders)
+        {
+            if (ownerIndex != collider.GetComponent<NetworkUnit>().ownerIndex)
+            {
+                target = collider.GetComponent<Damageable>();
+            }
+        }
+    }
+
     private IEnumerator MinionUpdate()
     {
         while (true)
         {
-            if (!navMeshAgent.pathPending && navMeshAgent.hasPath && !navMeshAgent.isStopped)
+            if (!navMeshAgent.pathPending && navMeshAgent.hasPath && !navMeshAgent.isStopped
+            && navMeshAgent.pathStatus == NavMeshPathStatus.PathComplete)
             {
-                if (navMeshAgent.pathStatus == NavMeshPathStatus.PathComplete
-                && navMeshAgent.remainingDistance < 0.5f && path.Count > 0)
+                // Find target.
+                if (target == null)
                 {
-                    // Move to next point in path.
-                    netNavAgent.SetDestination(path.Dequeue());
+                    FindTarget();
+
+                    // Check if destination needs to be updated.
+                    if (navMeshAgent.remainingDistance < 0.5f && path.Count > 0)
+                    {
+                        // Move to next point in path.
+                        netNavAgent.SetDestination(path.Dequeue());
+                    }
+                }
+                else
+                {
+                    if (!navMeshAgent.isStopped)
+                    {
+                        // Stop navmesh movement.
+                        netNavAgent.SetIsStopped(true);
+
+                        yield return new WaitForSeconds(0.2f);
+                    }
+                }
+            }
+            else
+            {
+                if (target != null)
+                {
+                    damager.Damage(target);
+
+                    yield return new WaitForSeconds(0.2f);
+                }
+                else
+                {
+                    netNavAgent.SetIsStopped(false);
                 }
             }
 
@@ -83,7 +118,15 @@ public class Minion : NetworkOffenceUnit
     {
         if (isServer)
         {
+            NetworkServer.Destroy(this.gameObject);
+        }
+    }
 
+    public void OnTargetKilled(Damageable dmg, Damager dmgr)
+    {
+        if (isServer)
+        {
+            target = null;
         }
     }
 }

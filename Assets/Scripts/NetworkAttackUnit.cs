@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 public abstract class NetworkAttackUnit : NetworkUnit
 {
     protected Damager damager;
+    protected Damageable target;
 
     protected override void Start()
     {
