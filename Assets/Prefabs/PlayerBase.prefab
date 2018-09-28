@@ -619,3 +619,4 @@ MonoBehaviour:
   serverUpdateDelay: 0.04
   warden: {fileID: 0}
   ownerIndex: 0
+  damageable: {fileID: 0}

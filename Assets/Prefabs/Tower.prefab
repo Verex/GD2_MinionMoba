@@ -222,6 +222,7 @@ MonoBehaviour:
   serverUpdateDelay: 0.04
   warden: {fileID: 0}
   ownerIndex: 0
+  damageable: {fileID: 0}
   targetRange: 1
   targetSearchMask:
     serializedVersion: 2
@@ -238,7 +239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11820355fb81d9946a669cce19d8e978, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 250
   currentHealth: 0
   OnTakeDamage:
     m_PersistentCalls:

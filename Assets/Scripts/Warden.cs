@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 public class Warden : NetworkBehaviour
 {
@@ -20,6 +21,9 @@ public class Warden : NetworkBehaviour
     [SerializeField] public Material[] playerMinionMaterial;
     [SerializeField] public int maxPlayerCount = 2;
 
+
+    public int winnerIndex = -1;
+
     public GameStartEvent OnGameStart;
     public GameState currentState;
 
@@ -28,6 +32,14 @@ public class Warden : NetworkBehaviour
     private List<List<Vector3>>[] minionPaths;
     private BaseSpawnPoint[] baseSpawnPoints;
     private NetManager netManager;
+
+    [ClientRpc]
+    private void RpcGameOver(int winnerIndex)
+    {
+        PlayerState.Instance.winnerIndex = winnerIndex;
+
+        SceneManager.LoadScene("GameOver", LoadSceneMode.Single);
+    }
 
     private IEnumerator MinionSpawn()
     {
@@ -60,12 +72,20 @@ public class Warden : NetworkBehaviour
                     minion.path = new Queue<Vector3>(minionPaths[player.index][pathIndex]);
 
                     // Set next path index.
-                    pathIndex = (pathIndex + 1) % minionPaths[player.index].Count; 
+                    pathIndex = (pathIndex + 1) % minionPaths[player.index].Count;
                 }
             }
 
             yield return new WaitForSeconds(8.0f);
         }
+    }
+
+    public void OnPlayerBaseDestroyed(Damageable damageable, Damager damager)
+    {
+        Base b = damageable.GetComponent<Base>();
+
+        winnerIndex = (b.ownerIndex == 1 ? 0 : 1);
+        RpcGameOver(winnerIndex);
     }
 
     private IEnumerator GameUpdate()
@@ -115,8 +135,10 @@ public class Warden : NetworkBehaviour
 
                 Base pb = playerBase.GetComponent<Base>();
                 pb.RpcSetTeamMaterial(player.index);
-
                 pb.ownerIndex = player.index;
+
+                Damageable dmg = playerBase.GetComponent<Damageable>();
+                dmg.OnDie.AddListener(OnPlayerBaseDestroyed);
 
                 // Assign players base.
                 player.playerBase = pb;

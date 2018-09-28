@@ -57,22 +57,19 @@ public abstract class NetworkAttackUnit : NetworkUnit
         // Get components.
         damager = GetComponent<Damager>();
 
-        // Set up target list.
-        targets = new List<Damageable>();
+        if (isServer)
+        {
+            // Set up target list.
+            targets = new List<Damageable>();
+        }
     }
 
     public virtual void OnTargetKilled(Damageable dmg, Damager dmgr)
     {
         if (isServer)
         {
-            //int r = targets.RemoveAll(x => x.gameObject.Equals(dmg.gameObject));
-
             // Remove target from our list.
-            if (targets.Remove(dmg))
-            {
-
-                Debug.Log("target removed" + targets.Count);
-            }
+            targets.Remove(dmg);
         }
     }
 }

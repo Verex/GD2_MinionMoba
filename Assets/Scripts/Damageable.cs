@@ -9,8 +9,8 @@ public class Damageable : MonoBehaviour
     [System.Serializable] public class HealEvent : UnityEvent<Damageable, float> { }
     [System.Serializable] public class HealthSetEvent : UnityEvent<Damageable> { }
     [System.Serializable] public class DeathEvent : UnityEvent<Damageable, Damager> { }
-    [SerializeField] private float maxHealth;
-    [SerializeField] private float currentHealth;
+    [SerializeField] public float maxHealth;
+    [SerializeField] public float currentHealth;
 
     public DamageEvent OnTakeDamage;
     public HealEvent OnHeal;

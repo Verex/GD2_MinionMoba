@@ -10,7 +10,7 @@ public abstract class NetworkUnit : NetworkBehaviour
     [SerializeField] private float serverUpdateDelay = 0.02f;
     public Warden warden;
     public int ownerIndex;
-    protected Damageable damageable;
+    public Damageable damageable;
 
     [ClientRpc]
     public void RpcSetTeamMaterial(int mid)

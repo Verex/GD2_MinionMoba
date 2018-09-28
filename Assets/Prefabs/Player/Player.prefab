@@ -52,22 +52,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40ccf06a343162349af7d42a9a9b9c63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnPlayerSpawn:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11500000, guid: 94dd3d7ae43d7eb4f9f8b7aa0d8b1ffb, type: 3}
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: Player+PlayerSpawnEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
+  uiPrefab: {fileID: 1080815877363578, guid: 4987d4b81a8a37542aef53bb50908655, type: 2}
+  userInterface: {fileID: 0}
+  playerBase: {fileID: 0}
+  towers: []
+  minions: []
+  index: 0
+  baseCurrentHealth: 0
+  baseMaxHealth: 0
 --- !u!114 &114335470341904814
 MonoBehaviour:
   m_ObjectHideFlags: 1
