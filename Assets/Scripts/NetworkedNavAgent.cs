@@ -11,6 +11,7 @@ public class NetworkedNavAgent : NetworkBehaviour
     private int test;
     private Vector3 targetPosition;
     private NavMeshAgent navMeshAgent;
+    private Vector3 currentPosition;
 
     public bool isMoving
     {
@@ -25,6 +26,17 @@ public class NetworkedNavAgent : NetworkBehaviour
             }
 
             return false;
+        }
+    }
+
+    private IEnumerator CheckPosition()
+    {
+        while (true)
+        {
+            yield return new WaitUntil(() => currentPosition != transform.position);
+
+            currentPosition = transform.position;
+            SetDirtyBit(1u);
         }
     }
 
@@ -49,6 +61,11 @@ public class NetworkedNavAgent : NetworkBehaviour
     {
         // Get components.
         navMeshAgent = GetComponent<NavMeshAgent>();
+
+        if (isServer)
+        {
+            currentPosition = transform.position;
+        }
     }
 
     public override bool OnSerialize(NetworkWriter writer, bool forceAll)

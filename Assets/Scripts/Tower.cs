@@ -20,6 +20,22 @@ public class Tower : NetworkAttackUnit
         renderer.materials = materials;
     }
 
+    protected override IEnumerator ServerUpdate()
+    {
+        yield return base.ServerUpdate();
+
+        if (targets.Count > 0)
+        {
+            // Damage all targets.
+            for (int i = 0; i < Mathf.Min(maxTargets, targets.Count); i++)
+            {
+                damager.Damage(targets[i]);
+            }
+
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+
     public void OnDie(Damageable dmg, Damager dmger)
     {
         if (isServer)

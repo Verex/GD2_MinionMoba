@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 114457462502324096}
   - component: {fileID: 114064302940079692}
   - component: {fileID: 65690757932546936}
+  - component: {fileID: 114115190819915050}
   m_Layer: 10
   m_Name: Tower
   m_TagString: Tower
@@ -228,6 +229,24 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1024
   maxTargets: 1
+--- !u!114 &114115190819915050
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1425749703916470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21b66269fd7574a478795e0a37a9366d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 25
+  damageVarianceRange: 0
+  OnDamage:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: Damager+DamageEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
 --- !u!114 &114457462502324096
 MonoBehaviour:
   m_ObjectHideFlags: 1
